@@ -4,6 +4,7 @@ from mysql.connector.errors import Error as MySQLError
 from config import DB_USER_PASS
 
 
+# делаем соединение с БД
 CONNECTION = mysql.connector.connect(
     host='localhost',
     user='support_user',
@@ -12,6 +13,7 @@ CONNECTION = mysql.connector.connect(
 )
 
 
+# выполнение SQL запроса
 def exec_query_without_resp(query: str) -> None:
     with CONNECTION.cursor() as cur:
         # выполняем SQL запрос
@@ -24,23 +26,26 @@ def exec_query_without_resp(query: str) -> None:
             print(f'You got error in file "db_connection.py": {error}')
 
 
+# добавление пользователя
 def add_user(user_id: int, username: str = 'клиент', user_status: str = 'regular') -> None:
     add_query = f'''INSERT INTO user (user_id, username, user_status) VALUES
     ("{user_id}", "{username}", "{user_status}")'''
-
+    # выполняем SQL запрос
     exec_query_without_resp(query=add_query)
 
 
+# добавление темы
 def add_theme(name: str) -> None:
     add_query = f'INSERT INTO theme (name) VALUES ("{name}")'
-
+    # выполняем SQL запрос
     exec_query_without_resp(query=add_query)
 
 
+# добавление тикета
 def add_message(user: int, theme: int, message_text: str, false_priority: int = 0) -> None:
     add_query = f'''INSERT INTO message (user, theme, message_text, false_priority) VALUES
     ("{user}", "{theme}", "{message_text}", "{str(false_priority)}")'''
-
+    # выполняем SQL запрос
     exec_query_without_resp(query=add_query)
 
 
