@@ -22,7 +22,7 @@ PRIMARY KEY (id));
 #### SQL:
 CREATE TABLE theme( <br>
 id INT NOT NULL AUTO_INCREMENT, <br>
-name VARCHAR(30) NOT NULL, <br>
+name VARCHAR(30) NOT NULL UNIQUE, <br>
 PRIMARY KEY (id));
 
 
