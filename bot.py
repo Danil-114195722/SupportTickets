@@ -33,26 +33,32 @@ COMPLETED = {
 
 
 class StatusRegular(StatesGroup):
+    regular_id = None
+
     regular = State()
     theme_ticket = State()
     priority = State()
     add_ticket = State()
     waiting_for_technic = State()
+    regular_msg = State()
 
 
 class StatusTechnic(StatesGroup):
+    technic_id = None
+
     technic = State()
     waiting_for_client = State()
+    technic_msg = State()
 
 
-class StatusSession(StatesGroup):
-    session = State()
-
-
-class Chatting(StatesGroup):
-    regular_id = None
-    technic_id = None
-    msg = State()
+# class StatusSession(StatesGroup):
+#     session = State()
+#
+#
+# class Chatting(StatesGroup):
+#     regular_id = None
+#     technic_id = None
+#     msg = State()
 
 
 '''
@@ -211,6 +217,7 @@ async def waiting_for_client(message: types.Message, state: FSMContext):
     await message.answer(f'Идёт подключение с клиентом ID: {client_id} Name: {client_name}')
     # Переходим в статус
     await StatusRegular.waiting_for_technic.set()
+    await StatusRegular.regular_msg.set()
 
 
 # Обработчик ответа тех. специалиста на запрос ID клиента
@@ -230,34 +237,43 @@ async def waiting_for_technic(message: types.Message, state: FSMContext):
                            reply_markup=keyboard)
     # Переходим в статус SESSION
     # await StatusSession.session.set()
-    Chatting.regular_id = client_id
-    Chatting.technic_id = technic_id
-    await Chatting.msg.set()
+    StatusTechnic.regular_id = client_id
+    StatusTechnic.technic_id = technic_id
+    await StatusTechnic.technic_msg.set()
 
 
-# Обработчик ответа клиента на запрос на начало сессии
-@dp.message_handler(commands=['Да'], state=StatusSession.session)
-async def start_session_handler(message: types.Message, state: FSMContext):
-    # Получаем ID тех. специалиста и клиента из контекста
-    data = await state.get_data()
-    technic_id = data.get('technic_id')
-    client_id = data.get('client_id')
-    # Отправляем сообщение тех. специалисту о начале сессии
-    await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} согласен на начало сессии.', reply_markup=ReplyKeyboardRemove)
-    await Chatting.msg.set()
+# # Обработчик ответа клиента на запрос на начало сессии
+# @dp.message_handler(commands=['Да'], state=StatusSession.session)
+# async def start_session_handler(message: types.Message, state: FSMContext):
+#     # Получаем ID тех. специалиста и клиента из контекста
+#     data = await state.get_data()
+#     technic_id = data.get('technic_id')
+#     client_id = data.get('client_id')
+#     # Отправляем сообщение тех. специалисту о начале сессии
+#     await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} согласен на начало сессии.', reply_markup=ReplyKeyboardRemove)
+#     await Chatting.msg.set()
+#
+#
+# # Обработчик ответа клиента на запрос на начало сессии
+# @dp.message_handler(commands=['Нет'], state=StatusSession.session)
+# async def cancel_session_handler(message: types.Message, state: FSMContext):
+#     # Получаем ID тех. специалиста и клиента из контекста
+#     data = await state.get_data()
+#     technic_id = data.get('technic_id')
+#     client_id = data.get('client_id')
+#     # Отправляем сообщение тех. специалисту об отмене сессии
+#     await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} отказался от начала сессии.', reply_markup=ReplyKeyboardRemove)
+#     # Переходим в начальный статус
+#     await state.finish()
 
 
-# Обработчик ответа клиента на запрос на начало сессии
-@dp.message_handler(commands=['Нет'], state=StatusSession.session)
-async def cancel_session_handler(message: types.Message, state: FSMContext):
-    # Получаем ID тех. специалиста и клиента из контекста
-    data = await state.get_data()
-    technic_id = data.get('technic_id')
-    client_id = data.get('client_id')
-    # Отправляем сообщение тех. специалисту об отмене сессии
-    await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} отказался от начала сессии.', reply_markup=ReplyKeyboardRemove)
-    # Переходим в начальный статус
-    await state.finish()
+@dp.message_handler(com)
+@dp.message_handler(state=StatusTechnic.technic_msg)
+async def chatting_technic(message: types.Message, state: FSMContext):
+    await state.update_data(msg=message.text)
+    user_data = await state.get_data()
+    client_id = StatusRegular.regular_id
+    await bot.send_message(client_id, user_data['msg'])
 
 
 @dp.message_handler(content_types=ContentTypes.TEXT)
@@ -265,7 +281,7 @@ async def cancel_session_handler(message: types.Message, state: FSMContext):
 async def chatting_technic(message: types.Message, state: FSMContext):
     await state.update_data(msg=message.text)
     user_data = await state.get_data()
-    client_id = Chatting.regular_id
+    client_id = StatusRegular.regular_id
     await bot.send_message(client_id, user_data['msg'])
 
 
