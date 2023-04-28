@@ -261,12 +261,38 @@ async def cancel_session_handler(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(content_types=ContentTypes.TEXT)
-@dp.message_handler(state=Chatting.msg)
-async def chatting(message: types.Message, state: FSMContext):
+@dp.message_handler(state=StatusTechnic.technic_msg)
+async def chatting_technic(message: types.Message, state: FSMContext):
     await state.update_data(msg=message.text)
     user_data = await state.get_data()
     client_id = Chatting.regular_id
     await bot.send_message(client_id, user_data['msg'])
+
+
+@dp.message_handler(content_types=ContentTypes.TEXT)
+@dp.message_handler(state=StatusRegular.regular_msg)
+async def chatting_client(message: types.Message, state: FSMContext):
+    await state.update_data(msg=message.text)
+    user_data = await state.get_data()
+    technic_id = StatusTechnic.technic_id
+    await bot.send_message(technic_id, user_data['msg'])
+
+
+# @dp.message_handler(content_types=ContentTypes.TEXT)
+# @dp.message_handler(state=Chatting.msg)
+# async def chatting_technic(message: types.Message, state: FSMContext):
+#     await state.update_data(msg=message.text)
+#     user_data = await state.get_data()
+#     client_id = Chatting.regular_id
+#     await bot.send_message(client_id, user_data['msg'])
+#
+# @dp.message_handler(content_types=ContentTypes.TEXT)
+# @dp.message_handler(state=Chatting.msg)
+# async def chatting_client(message: types.Message, state: FSMContext):
+#     await state.update_data(msg=message.text)
+#     user_data = await state.get_data()
+#     technic_id = Chatting.technic_id
+#     await bot.send_message(technic_id, user_data['msg'])
 
 
 if __name__ == '__main__':
