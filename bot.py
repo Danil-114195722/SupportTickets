@@ -267,7 +267,7 @@ async def waiting_for_technic(message: types.Message, state: FSMContext):
 #     await state.finish()
 
 
-@dp.message_handler(com)
+@dp.message_handler(c)
 @dp.message_handler(state=StatusTechnic.technic_msg)
 async def chatting_technic(message: types.Message, state: FSMContext):
     await state.update_data(msg=message.text)
