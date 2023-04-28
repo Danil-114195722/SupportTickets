@@ -267,13 +267,11 @@ async def waiting_for_technic(message: types.Message, state: FSMContext):
 #     await state.finish()
 
 
-@dp.message_handler(c)
-@dp.message_handler(state=StatusTechnic.technic_msg)
+@dp.message_handler(commands=['cancel'])
+@dp.message_handler(state=[StatusTechnic.technic_msg, StatusRegular.regular_msg])
 async def chatting_technic(message: types.Message, state: FSMContext):
-    await state.update_data(msg=message.text)
-    user_data = await state.get_data()
-    client_id = StatusRegular.regular_id
-    await bot.send_message(client_id, user_data['msg'])
+    await state.finish()
+    await message.answer('Жмите /start')
 
 
 @dp.message_handler(content_types=ContentTypes.TEXT)
