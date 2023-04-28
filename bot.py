@@ -1,6 +1,10 @@
 from aiogram.utils import executor
 from aiogram import Bot, Dispatcher, types
+from aiogram.dispatcher.filters import Command
+from aiogram.dispatcher import FSMContext, filters
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove, ChatMember, ContentTypes
 
 import db_connect as db
 from config import TOKEN
@@ -9,6 +13,23 @@ from command_buttons import client_keyboard, technic_keyboard, priority_keyboard
 # Создание бота
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
+
+INPUT_PRIORITY = {
+    'Низкий': '0',
+    'Средний': '1',
+    'Высокий': '2',
+}
+
+OUTPUT_PRIORITY = {
+    '0': 'Низкий',
+    '1': 'Средний',
+    '2': 'Высокий',
+}
+
+COMPLETED = {
+    0: 'в ожидании ответа',
+    1: 'завершён',
+}
 
 
 class StatusRegular(StatesGroup):
@@ -29,10 +50,23 @@ class StatusSession(StatesGroup):
 
 
 '''
-------------------------------------------------------------
+-----------------------------------------------------------
 ФУНКЦИЯ СТАРТА БОТА И ОПРЕДЕЛЕНИЯ КЕМ ЯВЛЯЕТСЯ ПОЛЬЗОВАТЕЛЬ
-------------------------------------------------------------
+-----------------------------------------------------------
 '''
+
+
+# @dp.message_handler(ChatMember())
+async def on_startup(message: types.Message):
+    pass
+#     # await message.answer(f'Добро пожаловать, {message.from_user.first_name}!', reply_markup=ReplyKeyboardMarkup().add('start'))
+#     if message.new_chat_members:
+#         for user in message.new_chat_members:
+#             user_id = user.id
+#             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#             button = types.KeyboardButton(text="Старт")
+#             keyboard.add(button)
+#             await bot.send_message(user_id, "Добро пожаловать в бот!", reply_markup=keyboard)
 
 
 @dp.message_handler(commands=['start'], state="*")
@@ -59,9 +93,9 @@ async def start_handler(message: types.Message, state: FSMContext):
 
 
 '''
----------------------
+--------------------
 ФУНКЦИИ ДЛЯ КЛИЕНТОВ
----------------------
+--------------------
 '''
 
 

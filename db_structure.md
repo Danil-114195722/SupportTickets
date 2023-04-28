@@ -46,4 +46,4 @@ true_priority TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, <br>
 message_text TEXT NOT NULL, <br>
 done BOOLEAN NOT NULL DEFAULT 0, <br>
 PRIMARY KEY (id), <br>
-FOREIGN KEY (user) REFERENCES user(id));
+CONSTRAINT user_forkey FOREIGN KEY (user) REFERENCES user(id));

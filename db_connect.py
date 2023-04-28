@@ -53,18 +53,18 @@ def add_user(user_id: int, username: str = 'клиент', user_status: str = 'r
 
 
 # добавление тикета
-def add_ticket(user: int, theme: str, message_text: str, false_priority: int = 0) -> None:
+def add_ticket(user: int, theme: str, message_text: str, false_priority: str = '0') -> None:
     add_query = f'''INSERT INTO ticket (user, theme, message_text, false_priority) VALUES
-    ("{user}", "{theme}", "{message_text}", "{str(false_priority)}")'''
+    ("{user}", "{theme}", "{message_text}", "{false_priority}")'''
     # выполняем SQL запрос
     exec_query_without_resp(query=add_query)
 
 
-# получение id из таблицы пользователей по id пользователя в тг
-def get_table_id_user(user_id: int) -> int:
-    get_query = f'''SELECT id FROM user  WHERE user_id = {user_id};'''
+# получение всей инфы о пользователе по id пользователя в тг
+def get_table_id_user(user_id: int) -> tuple:
+    get_query = f'''SELECT * FROM user  WHERE user_id = {user_id};'''
     # выполняем SQL запрос и возвращаем его ответ
-    table_id_user = exec_query_with_resp(query=get_query)[0][0]
+    table_id_user = exec_query_with_resp(query=get_query)[0]
     return table_id_user
 
 
@@ -77,9 +77,8 @@ def close_ticket(ticket_id: int) -> None:
 
 # вывод всех тикетов определённого пользователя
 def get_ticket_list_regular(user_id: int) -> tuple:
-    get_query = f'''SELECT theme.name, ticket.message_text, ticket.true_priority, ticket.false_priority
+    get_query = f'''SELECT ticket.theme, ticket.message_text, ticket.false_priority, ticket.true_priority, ticket.done
     FROM ticket INNER JOIN user ON ticket.user = user.id
-    INNER JOIN theme ON ticket.theme = theme.id
     WHERE user_id = {user_id};'''
     # выполняем SQL запрос и возвращаем его ответ
     ticket_list_regular = exec_query_with_resp(query=get_query)
@@ -88,8 +87,8 @@ def get_ticket_list_regular(user_id: int) -> tuple:
 
 # вывод всех нерешённых тикетов
 def get_ticket_list_technic() -> tuple:
-    get_query = f'''SELECT ticket.id, theme.name, ticket.false_priority, ticket.true_priority
-    FROM ticket INNER JOIN theme ON ticket.theme = theme.id
+    get_query = f'''SELECT user.user_id, ticket.id, ticket.theme, ticket.false_priority, ticket.true_priority
+    FROM ticket INNER JOIN user ON ticket.user = user.id
     WHERE ticket.done = 0;'''
     # выполняем SQL запрос и возвращаем его ответ
     ticket_list_technic = exec_query_with_resp(query=get_query)
@@ -98,9 +97,8 @@ def get_ticket_list_technic() -> tuple:
 
 # вывод полной информации об одном тикете по его id
 def get_ticket_info_technic(ticket_id: int) -> tuple:
-    get_query = f'''SELECT ticket.id, user.user_id, user.username, theme.name, ticket.message_text, ticket.false_priority, ticket.done
+    get_query = f'''SELECT ticket.id, user.user_id, user.username, ticket.theme, ticket.message_text, ticket.false_priority, ticket.done
     FROM ticket INNER JOIN user ON ticket.user = user.id
-    INNER JOIN theme ON ticket.theme = theme.id
     WHERE ticket.id = {ticket_id};'''
     # выполняем SQL запрос и возвращаем его ответ
     ticket_info_technic = exec_query_with_resp(query=get_query)
@@ -108,15 +106,18 @@ def get_ticket_info_technic(ticket_id: int) -> tuple:
 
 
 if __name__ == '__main__':
-    # add_user(user_id=123456, username='ejyou', user_status='technic')
+    pass
+    # add_user(user_id=123456, username='Алексей', user_status='technic')
     # add_theme(name='server issues')
     # add_ticket(user=16, theme='server issfgsue', message_text="I've got dfgdg problem. Can you help me? It's emergency!!!", false_priority=1)
     # print(get_ticket_list_regular(user_id=123456))
     # print('-------------------------------------')
-    # print(get_ticket_info_technic(ticket_id=2))
+    # print(get_ticket_info_technic(ticket_id=1))
     # print('-------------------------------------')
     # list_tickets = get_ticket_list_technic()[0]
     # print(list_tickets)
     # print(str(list_tickets[3]))
     # print('-------------------------------------')
     # print(get_table_id_user(user_id=123456))
+    # print('-------------------------------------')
+    # print(get_ticket_list_technic())
