@@ -110,7 +110,7 @@ def get_ticket_info_technic(ticket_id: int) -> tuple:
 if __name__ == '__main__':
     # add_user(user_id=123456, username='ejyou', user_status='technic')
     # add_theme(name='server issues')
-    add_ticket(user=1, theme='server issue', message_text="I've got a problem. Can you help me? It's emergency!!!", false_priority=2)
+    # add_ticket(user=16, theme='server issfgsue', message_text="I've got dfgdg problem. Can you help me? It's emergency!!!", false_priority=1)
     # print(get_ticket_list_regular(user_id=123456))
     # print('-------------------------------------')
     # print(get_ticket_info_technic(ticket_id=2))
