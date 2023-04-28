@@ -6,7 +6,7 @@ from config import DB_USER_PASS
 
 # делаем соединение с БД
 CONNECTION = mysql.connector.connect(
-    host='localhost',
+    host='79.137.204.172',
     user='support_user',
     passwd=DB_USER_PASS,
     database='support_db'
