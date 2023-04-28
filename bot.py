@@ -49,24 +49,17 @@ class StatusSession(StatesGroup):
     session = State()
 
 
+class Chatting(StatesGroup):
+    regular_id = None
+    technic_id = None
+    msg = State()
+
+
 '''
 -----------------------------------------------------------
 ФУНКЦИЯ СТАРТА БОТА И ОПРЕДЕЛЕНИЯ КЕМ ЯВЛЯЕТСЯ ПОЛЬЗОВАТЕЛЬ
 -----------------------------------------------------------
 '''
-
-
-# @dp.message_handler(ChatMember())
-async def on_startup(message: types.Message):
-    pass
-#     # await message.answer(f'Добро пожаловать, {message.from_user.first_name}!', reply_markup=ReplyKeyboardMarkup().add('start'))
-#     if message.new_chat_members:
-#         for user in message.new_chat_members:
-#             user_id = user.id
-#             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-#             button = types.KeyboardButton(text="Старт")
-#             keyboard.add(button)
-#             await bot.send_message(user_id, "Добро пожаловать в бот!", reply_markup=keyboard)
 
 
 @dp.message_handler(commands=['start'], state="*")
@@ -236,7 +229,10 @@ async def waiting_for_technic(message: types.Message, state: FSMContext):
                            text=f'Тех.специалист {db.get_table_id_user(user_id=technic_id)[2]} хочет начать сессию. Присоединиться?',
                            reply_markup=keyboard)
     # Переходим в статус SESSION
-    await StatusSession.session.set()
+    # await StatusSession.session.set()
+    Chatting.regular_id = client_id
+    Chatting.technic_id = technic_id
+    await Chatting.msg.set()
 
 
 # Обработчик ответа клиента на запрос на начало сессии
@@ -248,7 +244,7 @@ async def start_session_handler(message: types.Message, state: FSMContext):
     client_id = data.get('client_id')
     # Отправляем сообщение тех. специалисту о начале сессии
     await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} согласен на начало сессии.', reply_markup=ReplyKeyboardRemove)
-    # await Chating.msg.set()
+    await Chatting.msg.set()
 
 
 # Обработчик ответа клиента на запрос на начало сессии
@@ -260,9 +256,18 @@ async def cancel_session_handler(message: types.Message, state: FSMContext):
     client_id = data.get('client_id')
     # Отправляем сообщение тех. специалисту об отмене сессии
     await bot.send_message(chat_id=technic_id, text=f'Клиент {client_id} отказался от начала сессии.', reply_markup=ReplyKeyboardRemove)
-    # Переходим в начальнстатус
+    # Переходим в начальный статус
     await state.finish()
 
 
+@dp.message_handler(content_types=ContentTypes.TEXT)
+@dp.message_handler(state=Chatting.msg)
+async def chatting(message: types.Message, state: FSMContext):
+    await state.update_data(msg=message.text)
+    user_data = await state.get_data()
+    client_id = Chatting.regular_id
+    await bot.send_message(client_id, user_data['msg'])
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    executor.start_polling(dp, skip_updates=True)
