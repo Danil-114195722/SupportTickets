@@ -1,9 +1,11 @@
+from aiogram.utils import executor
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
 import db_connect as db
 from config import TOKEN
-from aiogram.utils import executor
 from command_buttons import client_keyboard, technic_keyboard
+
 
 # creating a bot
 bot = Bot(token=TOKEN)

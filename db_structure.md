@@ -14,54 +14,36 @@ user_status ENUM('regular', 'technic') NOT NULL, <br>
 PRIMARY KEY (id));
 
 
-## ФИКСИРОВАННЫЕ ТЕМЫ [theme]
-#### 1) name
-+---+--------+ <br>
-| id | name | <br>
-+---+--------+
-#### SQL:
-CREATE TABLE theme( <br>
-id INT NOT NULL AUTO_INCREMENT, <br>
-name VARCHAR(30) NOT NULL UNIQUE, <br>
-PRIMARY KEY (id));
+[//]: # (## ФИКСИРОВАННЫЕ ТЕМЫ [theme])
+[//]: # (#### 1&#41; name)
+[//]: # (+---+--------+ <br>)
+[//]: # (| id | name | <br>)
+[//]: # (+---+--------+)
+[//]: # (#### SQL:)
+[//]: # (CREATE TABLE theme&#40; <br>)
+[//]: # (id INT NOT NULL AUTO_INCREMENT, <br>)
+[//]: # (name VARCHAR&#40;30&#41; NOT NULL UNIQUE, <br>)
+[//]: # (PRIMARY KEY &#40;id&#41;&#41;;)
 
 
-## СООБЩЕНИЯ [message]
+## СООБЩЕНИЯ [ticket]
 #### 1) id пользователя (из таблицы user)
-#### 2) тема (из таблицы theme)
-#### 3) мнимый приоритет
+#### 2) тема до 100 символов
+#### 3) мнимый приоритет (0, 1 или 2)
 #### 4) истинный приоритет (т.е. дата написания сообщения) 
 #### 5) текст сообщения
+#### 6) выполнен ли тикет (True или False)
 +---+------+---------+------------------+----------------+--------------------+ <br> 
 | id | user | theme | false_priority | true_priority | message_text | <br>
 +---+------+---------+------------------+----------------+--------------------+ 
 #### SQL:
-CREATE TABLE message( <br>
+CREATE TABLE ticket( <br>
 id INT NOT NULL AUTO_INCREMENT, <br>
 user INT NOT NULL, <br>
-theme INT NOT NULL, <br>
+theme VARCHAR(100) NOT NULL, <br>
 false_priority ENUM('0', '1', '2') NOT NULL DEFAULT '0', <br>
 true_priority TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, <br>
 message_text TEXT NOT NULL, <br>
+done BOOLEAN NOT NULL DEFAULT 0, <br>
 PRIMARY KEY (id), <br>
-FOREIGN KEY (user) REFERENCES user(id), <br>
-FOREIGN KEY (theme) REFERENCES theme(id));
-
-
-
-
-
-
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-class Character(models.Model):
-    MALE = 'M'
-    FEMALE = 'F'
-    GENDERS = [
-        (MALE, 'Man'),
-        (FEMALE, 'Woman')
-    ]
-
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100, default='')
-    gender = models.CharField(max_length=1, choices=GENDERS, default=MALE)
+FOREIGN KEY (user) REFERENCES user(id));
