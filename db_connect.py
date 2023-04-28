@@ -42,7 +42,7 @@ def add_theme(name: str) -> None:
 
 
 # добавление тикета
-def add_message(user: int, theme: int, message_text: str, false_priority: int = 0) -> None:
+def add_ticket(user: int, theme: int, message_text: str, false_priority: int = 0) -> None:
     add_query = f'''INSERT INTO message (user, theme, message_text, false_priority) VALUES
     ("{user}", "{theme}", "{message_text}", "{str(false_priority)}")'''
     # выполняем SQL запрос

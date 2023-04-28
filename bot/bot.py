@@ -53,7 +53,7 @@ async def new_ticket_priority_handler(message: types.Message):
     # sending a message to the user asking for a description of the problem
     await message.answer('Опишите проблему:')
     # adding a ticket to the database
-    db.add_ticket(user_id=message.from_user.id, theme='theme', priority=priority, description=message.text)
+    db.add_ticket(user=message.from_user.id, theme=1, message_text=message.text, false_priority=priority)
     # move to the next handler
     dp.register_message_handler(new_ticket_finish_handler, user_id=message.from_user.id, user_status='regular')
 
