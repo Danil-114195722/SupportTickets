@@ -1,2 +1,2 @@
 aiogram==2.20
-mysql-connector-python==8.0.30
+mysql-connector-python==8.0.33
