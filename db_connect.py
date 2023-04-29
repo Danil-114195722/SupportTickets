@@ -68,6 +68,14 @@ def get_table_id_user(user_id: int) -> tuple:
     return table_id_user
 
 
+# получение user id по id пользователя в таблице пользователей
+def get_user_id(table_id: int) -> int:
+    get_query = f'''SELECT user_id FROM user WHERE id = {table_id};'''
+    # выполняем SQL запрос и возвращаем его ответ
+    table_id_user = exec_query_with_resp(query=get_query)[0][0]
+    return table_id_user
+
+
 # закрыть задачу (поставить в значение done 1)
 def close_ticket(ticket_id: int) -> None:
     update_query = f'''UPDATE ticket SET ticket.done = 1 WHERE ticket.id = {ticket_id}'''

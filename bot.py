@@ -6,6 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove, ChatMember, ContentTypes
 
+from re import match
 import db_connect as db
 from config import TOKEN
 from command_buttons import client_keyboard, technic_keyboard, priority_keyboard
@@ -217,7 +218,7 @@ async def waiting_for_client(message: types.Message, state: FSMContext):
     await message.answer(f'Идёт подключение с клиентом ID: {client_id} Name: {client_name}')
     # Переходим в статус
     await StatusRegular.waiting_for_technic.set()
-    await StatusRegular.regular_msg.set()
+    # await StatusRegular.regular_msg.set()
 
 
 # Обработчик ответа тех. специалиста на запрос ID клиента
@@ -307,6 +308,17 @@ async def chatting_client(message: types.Message, state: FSMContext):
 #     user_data = await state.get_data()
 #     technic_id = Chatting.technic_id
 #     await bot.send_message(technic_id, user_data['msg'])
+
+
+@dp.message_handler()
+async def change_user_state(message: types.Message):
+    message_text = message.text
+    if match('^/start_session_\d{3}', message_text):
+        technic_table_id = int(message_text.split('_')[-1])
+        technic_user_id = db.get_user_id(table_id=technic_table_id)
+
+        StatusTechnic.technic_id = technic_user_id
+        await StatusTechnic.technic_msg.set()
 
 
 if __name__ == '__main__':
