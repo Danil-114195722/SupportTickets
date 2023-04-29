@@ -52,6 +52,13 @@ class StatusTechnic(StatesGroup):
     technic_msg = State()
 
 
+class QAN(StatesGroup):
+    technic_id = None
+    technic_table_id = None
+    select_chat_id = State()
+    connection = State()
+
+
 # class StatusSession(StatesGroup):
 #     session = State()
 #
@@ -216,6 +223,15 @@ async def waiting_for_client(message: types.Message, state: FSMContext):
     await state.update_data(client_id=client_id)
     # Отправляем сообщение тех. специалисту с информацией о клиенте
     await message.answer(f'Идёт подключение с клиентом ID: {client_id} Name: {client_name}')
+    # print(StatusTechnic.technic_id)
+
+    data = await state.get_data()
+    technic_id = data.get('technic_id')
+    print(technic_id)
+
+    technic_table_id = str(db.get_table_id_user(user_id=technic_id)[0]).rjust(3, '0')
+    await bot.send_message(chat_id=client_id,
+                           text=f'Тех.специалист {technic_table_id} готов начать чать, нажмите на /start_session_{technic_table_id} чтобы начать чат')
     # Переходим в статус
     await StatusRegular.waiting_for_technic.set()
     # await StatusRegular.regular_msg.set()
@@ -268,29 +284,38 @@ async def waiting_for_technic(message: types.Message, state: FSMContext):
 #     await state.finish()
 
 
-@dp.message_handler(commands=['cancel'])
-@dp.message_handler(state=[StatusTechnic.technic_msg, StatusRegular.regular_msg])
-async def chatting_technic(message: types.Message, state: FSMContext):
-    await state.finish()
-    await message.answer('Жмите /start')
+# @dp.message_handler(commands=['cancel'])
+# @dp.message_handler(state=[StatusTechnic.technic_msg, StatusRegular.regular_msg])
+# async def chatting_technic(message: types.Message, state: FSMContext):
+#     await state.finish()
+#     await message.answer('Жмите /start')
 
 
 @dp.message_handler(content_types=ContentTypes.TEXT)
-@dp.message_handler(state=StatusTechnic.technic_msg)
-async def chatting_technic(message: types.Message, state: FSMContext):
-    await state.update_data(msg=message.text)
-    user_data = await state.get_data()
-    client_id = StatusRegular.regular_id
-    await bot.send_message(client_id, user_data['msg'])
-
-
-@dp.message_handler(content_types=ContentTypes.TEXT)
-@dp.message_handler(state=StatusRegular.regular_msg)
+@dp.message_handler(state=QAN.select_chat_id)
 async def chatting_client(message: types.Message, state: FSMContext):
     await state.update_data(msg=message.text)
     user_data = await state.get_data()
     technic_id = StatusTechnic.technic_id
     await bot.send_message(technic_id, user_data['msg'])
+
+
+# @dp.message_handler(content_types=ContentTypes.TEXT)
+# @dp.message_handler(state=StatusTechnic.technic_msg)
+# async def chatting_technic(message: types.Message, state: FSMContext):
+#     await state.update_data(msg=message.text)
+#     user_data = await state.get_data()
+#     client_id = StatusRegular.regular_id
+#     await bot.send_message(client_id, user_data['msg'])
+#
+#
+# @dp.message_handler(content_types=ContentTypes.TEXT)
+# @dp.message_handler(state=StatusRegular.regular_msg)
+# async def chatting_client(message: types.Message, state: FSMContext):
+#     await state.update_data(msg=message.text)
+#     user_data = await state.get_data()
+#     technic_id = StatusTechnic.technic_id
+#     await bot.send_message(technic_id, user_data['msg'])
 
 
 # @dp.message_handler(content_types=ContentTypes.TEXT)
@@ -316,9 +341,9 @@ async def change_user_state(message: types.Message):
     if match('^/start_session_\d{3}', message_text):
         technic_table_id = int(message_text.split('_')[-1])
         technic_user_id = db.get_user_id(table_id=technic_table_id)
-
-        StatusTechnic.technic_id = technic_user_id
-        await StatusTechnic.technic_msg.set()
+        QAN.technic_id = technic_user_id
+        QAN.technic_table_id = technic_table_id
+        await QAN.select_chat_id.set()
 
 
 if __name__ == '__main__':
