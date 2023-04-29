@@ -5,10 +5,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ContentTypes
 
-from re import match
+from re import match as re_match, split as re_split
 import db_connect as db
 from config import TOKEN
-from command_buttons import client_keyboard, technic_keyboard, priority_keyboard
+from command_buttons import client_keyboard, technic_keyboard, priority_keyboard, session_keyboard_regular, session_keyboard_technic
 
 # Создание бота
 
